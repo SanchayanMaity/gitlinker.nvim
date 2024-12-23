@@ -233,6 +233,14 @@ function M.get_git_root()
   )[1]
 end
 
+function M.get_branch()
+  local branch = git({ "branch", "--show-current" })
+  if #branch == 1 then
+    return branch[1]
+  end
+  return nil
+end
+
 function M.get_branch_remote()
   local remotes = get_remotes()
   if #remotes == 0 then
