@@ -1,4 +1,5 @@
-local M = {}
+local M   = {}
+local git = require("gitlinker.git")
 
 function M.get_base_https_url(url_data)
   local url = "https://" .. url_data.host
@@ -187,6 +188,25 @@ function M.get_matching_callback(target_host)
   return matching_callback
 end
 
+--- Constructs a android.googlesource.com style url
+function M.get_android_googlesource_url(url_data)
+  local url = require"gitlinker.hosts".get_base_https_url(url_data)
+  if not url_data.file or not url_data.rev then
+    return url
+  end
+
+  local branch = git.get_branch()
+  if not branch then
+    return url
+  end
+
+  url = url .. "/+/refs/heads/" .. branch .. "/" .. url_data.file
+  if url_data.lstart then
+    url = url .. "#" .. url_data.lstart
+  end
+  return url
+end
+
 M.callbacks = {
   ["github.com"] = M.get_github_type_url,
   ["gitlab.com"] = M.get_gitlab_type_url,
@@ -199,6 +219,7 @@ M.callbacks = {
   ["repo.or.cz"] = M.get_repoorcz_type_url,
   ["git.kernel.org"] = M.get_cgit_type_url,
   ["git.savannah.gnu.org"] = M.get_cgit_type_url,
+  ["android.googlesource.com"] = M.get_android_googlesource_url,
 }
 
 return M
